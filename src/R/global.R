@@ -8,6 +8,7 @@ plot_stalkR_map <-
   ) {
     
     require( "dplyr" )
+    require( "grDevices" )
     require( "leaflet" )
     
     if ( !is.null( time.start ) ) {
