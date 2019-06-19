@@ -22,7 +22,7 @@ plot_stalkR_map <-
     time.start = NULL,
     time.end = NULL,
     palette = NULL,
-    print.lines = FALSE,
+    print.lines = NULL,
     ...
   ) {
     
@@ -64,10 +64,22 @@ plot_stalkR_map <-
       
       x$"t" <- as.factor( x = x$"hour" )
       
+      if ( is.null( print.lines ) ) {
+        
+        print.lines <- TRUE
+        
+      }
+      
     } else {
     
       x$"t" <- as.factor( x = x$"year.month.day" )
     
+      if ( is.null( print.lines ) ) {
+        
+        print.lines <- FALSE
+        
+      }
+      
     }
     
     if ( is.null( palette ) ) {
@@ -79,30 +91,58 @@ plot_stalkR_map <-
       
     }
     
-    y <- 
-      leaflet::leaflet() %>%
-      leaflet::addTiles()
+    x$"colors" <- palette[ x$"t" ]
     
+    y <- 
+      leaflet::leaflet( data = x ) %>%
+      leaflet::addTiles() %>% 
+      leaflet::addCircles(
+        lng = ~ longitude,
+        lat = ~ latitude,
+        stroke = TRUE,
+        color = "black",
+        opacity = 0.1,
+        fill = TRUE,
+        fillColor = ~ colors, # palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$"day.factor"[ i ] ],
+        fillOpacity = 1, # 0.5
+        ...
+      )
+    
+    # if ( print.lines ) { # Does not work yet.
+    #   
+    #   y <-
+    #     y %>%
+    #     leaflet::addPolylines(
+    #       lng = ~ longitude,
+    #       lat = ~ latitude,
+    #       stroke = TRUE,
+    #       color = ~ colors, # palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$day.factor[ i ] ],
+    #       opacity = 0.5
+    #     )
+    #   
+    # }
+      
     
     for ( i in rows.to.plot ) {
-      
-      y <-  
-        y %>% 
-        leaflet::addCircles(
-          lng = x$"longitude"[ i ],
-          lat = x$"latitude"[ i ],
-          stroke = TRUE,
-          color = "black",
-          opacity = 0.1,
-          fill = TRUE,
-          fillColor  = palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$"day.factor"[ i ] ],
-          fillOpacity = 1, # 0.5
-          ...
-        )
-      
+
+    #   y <-  
+    #     y %>% 
+    #     leaflet::addCircles(
+    #       lng = x$"longitude"[ i ],
+    #       lat = x$"latitude"[ i ],
+    #       stroke = TRUE,
+    #       color = "black",
+    #       opacity = 0.1,
+    #       fill = TRUE,
+    #       fillColor  = palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$"day.factor"[ i ] ],
+    #       fillOpacity = 1, # 0.5
+    #       ...
+    #     )
+
       if ( print.lines & i > rows.to.plot[ 1 ] ) {
-        y <-  
-          y %>% 
+        
+        y <-
+          y %>%
           leaflet::addPolylines(
             lng = x$"longitude"[ ( i-1 ):i ],
             lat = x$"latitude"[ ( i-1 ):i ],
@@ -111,7 +151,7 @@ plot_stalkR_map <-
             opacity = 0.5
           )
       }
-      
+
     }
     
     return( y )
