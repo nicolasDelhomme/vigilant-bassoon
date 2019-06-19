@@ -42,7 +42,7 @@ ui <- fluidPage(
     # Show a plot of the generated distribution
     mainPanel(
       textOutput("textOutput"),
-      plotOutput("plot_output",width="400px")
+      leafletOutput("plot_output",width="400px")
     )
     
   ),
@@ -65,7 +65,7 @@ server <- function(input, output) {
             dts()[["start"]],dts()[["end"]],
             dts()[["start"]] %--% dts()[["end"]]  %>% int_length())
   })
-  output$plot_output <- renderPlot({
+  output$plot_output <- renderLeaflet({
     plot_stalkR_map(dat,
                     dts()[["start"]],
                     dts()[["end"]])
