@@ -23,6 +23,8 @@ plot_stalkR_map <-
     time.end = NULL,
     palette = NULL,
     print.lines = NULL,
+    print.average = FALSE,
+    print.individual = TRUE,
     ...
   ) {
     
@@ -86,10 +88,7 @@ plot_stalkR_map <-
     
     if ( is.null( palette ) ) {
       
-      palette <- 
-        grDevices::rainbow( n = nlevels( x$"t" ) )
-        # grDevices::rainbow( n = nlevels( x$"year.month.day" ) )
-        # grDevices::rainbow( n = nlevels( x$"day.factor" ) )
+      palette <- grDevices::rainbow( n = nlevels( x$"t" ) )
      
     }
     
@@ -99,7 +98,56 @@ plot_stalkR_map <-
         domain = levels( x$"t" ) 
       )
     
-    # x$"colors" <- palette[ x$"t" ]
+    x$"is.avg" <- FALSE
+    
+    if ( print.individual | print.average ) {
+    
+      if ( print.average ) {
+        
+        x.grp <- 
+          group_by(
+            .data = x,
+            t
+          )
+        
+        x.grp <-
+          summarize_at(
+            .tbl = x.grp,
+            .vars = c( "longitude", "latitude" ), 
+            .funs = mean
+          )
+        
+        x.grp$is.avg <- TRUE
+        
+        if ( print.individual ) {
+          
+          x <- bind_rows( x, x.grp )
+          
+        } else {
+          
+          x <- x.grp
+          
+        }
+        
+      }
+      
+    } else {
+      
+      x <- x[ NULL, ]
+      
+    }
+      
+    # for ( i in 1:nrow( x.grp ) ) {
+    #   
+    #   y <-
+    #     y%>%
+    #     leaflet::addCircleMarkers(
+    #       radius = 2, # ~ifelse(type == "ship", 6, 10),
+    #       color = "black", # palette( x.grp$t[ i ] ) #,
+    #       # stroke = FALSE, fillOpacity = 0.5
+    #     )
+    #   
+    # }
     
     y <- 
       leaflet::leaflet( data = x ) %>%
@@ -107,12 +155,13 @@ plot_stalkR_map <-
       leaflet::addCircles(
         lng = ~ longitude,
         lat = ~ latitude,
-        stroke = TRUE,
-        color = "black",
-        opacity = 0.1,
-        fill = TRUE,
-        fillColor = ~ palette( t ), # ~ colors, # palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$"day.factor"[ i ] ],
-        fillOpacity = 1, # 0.5
+        stroke = FALSE, # TRUE,
+        # color = "black",
+        # opacity = 0.1,
+        # fill = TRUE,
+        color = ~ palette( t ), # ~ colors, # palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$"day.factor"[ i ] ],
+        fillOpacity = ~ ifelse( test = is.avg, yes = 0.5, no = 0.75 ),
+        radius = ~ ifelse( test = is.avg, yes = 100, no = 10 ),  # 0.5
         ...
       ) %>%
       leaflet::addLegend(
