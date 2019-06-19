@@ -41,7 +41,10 @@ ui <- fluidPage(
       fluidRow(
         column(4,style=list("padding-right: 5px;"),
                actionButton("date_action","Update"))
-        ),
+      ),
+      
+      # time
+      tags$div(id="times"),
       
       # ruler
       hr(),
@@ -82,6 +85,9 @@ server <- function(input, output) {
   # vars
   lineUI <- FALSE
   lines <- TRUE
+  timeUI <- FALSE
+  hstart <- NULL
+  hstop <- NULL
   
   # dataset
   dset <- reactive({
@@ -113,7 +119,8 @@ server <- function(input, output) {
     edate <- input$date_end
 
     if(sdate == edate){
-      edate <- as_datetime(edate) + days(1) -minutes(1)
+      sdate <- as_datetime(edate) + minutes(1)
+      edate <- as_datetime(edate) + days(1) -hours(2)
     }
     
     tibble(
@@ -129,7 +136,7 @@ server <- function(input, output) {
         insertUI("#lines",
                  ui = 
                    fluidRow(
-                     column(6,offset=1,
+                     column(6,
                             radioButtons("radiolines",
                                          "Lines",
                                          c("on","off"),
@@ -139,6 +146,12 @@ server <- function(input, output) {
         lines <<- FALSE
         #message("update2p",lineUI,lines)
       }
+      
+      if(timeUI){
+        removeUI("#times")
+        timeUI <<- FALSE
+      }
+      
     } else {
       if(lineUI){
         removeUI("#lines")
@@ -146,8 +159,16 @@ server <- function(input, output) {
         lines <<- TRUE
         #message("update2m",lineUI,lines)
       }
+      if(!timeUI){
+        insertUI("#times",
+                 ui=fluidRow(
+                   column(12,sliderInput("hour","Hour",value = c(0,23),
+                                         min = 0,max=23))
+                 ))
+        timeUI <<- TRUE
+      }
     }
-    message("update3",lineUI,lines)
+    #message("update3",lineUI,lines)
     })
   
   # some text - used for debug
@@ -174,10 +195,22 @@ server <- function(input, output) {
         }
       }
     
-    message("plot",lineUI,lines,llines)
+    if(! is.null(input$hour)){
+      hstart <- input$hour[1]
+      hstop <- input$hour[2]
+      if(!timeUI){
+        
+      }
+    }
     
-    message("plot ",isolate(dts()$start),
-            isolate(dts()$end))
+    # message("plot",lineUI,lines,llines)
+    # 
+    # message("plot ",isolate(dts()$start)," ",
+    #         isolate(dts()$end))
+    # 
+    # message("plot ",hstart," ",
+    #         hstop)
+    # 
     
     pal <- switch(input$plt,
                   "None"=NULL,
@@ -185,9 +218,11 @@ server <- function(input, output) {
                   "Set3"=brewer.pal(12,"Set3"))
     
       plot_stalkR_map(dset(),
-                      isolate(dts()$start),
-                      isolate(dts()$end),
+                      isolate(as.POSIXct(dts()$start)),
+                      isolate(as.POSIXct(dts()$end)),
                       print.lines=llines,
+                      highlight.start = hstart,
+                      highlight.end = hstop,
                       palette=pal,
                       print.average = switch(input$avg,
                                              "on"=TRUE,
