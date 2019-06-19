@@ -1,34 +1,5 @@
-# HEADER ----
-#' ---
-#' title: "Gold standard analysis of all networks"
-#' author: "Nicolas Delhomme & Tommi Suvitaival"
-#' date: "`r Sys.Date()`"
-#' output:
-#'  html_document:
-#'    toc: true
-#'    number_sections: true
-#' ---
-
-# Setup
-# library(shiny)
-# options(shiny.port = 12001)
-# options(shiny.host = "130.239.72.58")
-# runApp('~/Git/UPSCb/projects/spruce-shiny-pacbio-blast/src/R/pacBioBlast')
-
-# libraries
-suppressPackageStartupMessages(library(colourpicker))
-suppressPackageStartupMessages(library(here))
-suppressPackageStartupMessages(library(lubridate))
-suppressPackageStartupMessages(library(RColorBrewer))
-suppressPackageStartupMessages(library(shiny))
-suppressPackageStartupMessages(library(tidyverse))
-
-# DATA ----
-message("Loading the data")
-
-dat <- readRDS(here::here("data","data_visby.rds"))
-
-cols <- RColorBrewer::brewer.pal(8,"Dark2")
+# Source ----
+source(here::here("src/R/global.R"))
 
 # UI ----
 message("Setting the UI")
@@ -70,7 +41,8 @@ ui <- fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      textOutput("textOutput")
+      textOutput("textOutput"),
+      plotOutput("plot_output",width="400px")
     )
     
   ),
@@ -92,6 +64,11 @@ server <- function(input, output) {
     sprintf("We stalked from %s to %s (%s seconds)",
             dts()[["start"]],dts()[["end"]],
             dts()[["start"]] %--% dts()[["end"]]  %>% int_length())
+  })
+  output$plot_output <- renderPlot({
+    plot_stalkR_map(dat,
+                    dts()[["start"]],
+                    dts()[["end"]])
   })
 }
 
