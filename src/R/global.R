@@ -22,10 +22,11 @@ plot_stalkR_map <-
     time.start = NULL,
     time.end = NULL,
     palette = NULL,
+    print.lines = NULL,
     ...
   ) {
     
-    # if ( !is.null( time.start ) ) {
+    # if ( !is.null( time.start ) ) { # Does not work yet.
     #   
     #   stopifnot( is.time( time.start ) )
     #   stopifnot( !is.null( time.end ) )
@@ -59,49 +60,100 @@ plot_stalkR_map <-
         )
       )
     
-    x$"year.month.day" <- as.factor( x = x$"year.month.day" )
+    if ( length( unique( x$"year.month.day" ) ) == 1 ) {
+      
+      x$"t" <- as.factor( x = x$"hour" )
+      is.hours <- TRUE
+      
+      if ( is.null( print.lines ) ) {
+        
+        print.lines <- TRUE
+        
+      }
+      
+    } else {
+    
+      x$"t" <- as.factor( x = x$"year.month.day" )
+      is.hours <- FALSE
+    
+      if ( is.null( print.lines ) ) {
+        
+        print.lines <- FALSE
+        
+      }
+      
+    }
     
     if ( is.null( palette ) ) {
       
       palette <- 
-        grDevices::rainbow( n = nlevels( x$"year.month.day" ) )
+        grDevices::rainbow( n = nlevels( x$"t" ) )
+        # grDevices::rainbow( n = nlevels( x$"year.month.day" ) )
         # grDevices::rainbow( n = nlevels( x$"day.factor" ) )
-      
+     
     }
     
-    y <- 
-      leaflet::leaflet() %>%
-      leaflet::addTiles()
+    palette <-
+      leaflet::colorFactor( 
+        palette = palette,
+        domain = levels( x$"t" ) 
+      )
     
+    # x$"colors" <- palette[ x$"t" ]
+    
+    y <- 
+      leaflet::leaflet( data = x ) %>%
+      leaflet::addTiles() %>% 
+      leaflet::addCircles(
+        lng = ~ longitude,
+        lat = ~ latitude,
+        stroke = TRUE,
+        color = "black",
+        opacity = 0.1,
+        fill = TRUE,
+        fillColor = ~ palette( t ), # ~ colors, # palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$"day.factor"[ i ] ],
+        fillOpacity = 1, # 0.5
+        ...
+      ) %>%
+      leaflet::addLegend(
+        position = "bottomleft",
+        pal = palette,
+        values = ~ t,
+        title = ifelse( test = is.hours, yes = "Hour", no = "Day" ),
+        # labFormat = labelFormat( prefix = "$" ),
+        opacity = 1
+      )
+    
+    # if ( print.lines ) { # Does not work yet.
+    # 
+    #   y <-
+    #     y %>%
+    #     leaflet::addPolylines(
+    #       lng = ~ longitude,
+    #       lat = ~ latitude,
+    #       stroke = TRUE,
+    #       color = ~ t, # palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$day.factor[ i ] ],
+    #       opacity = 0.5
+    #     )
+    # 
+    # }
+      
     
     for ( i in rows.to.plot ) {
-      
-      y <-  
-        y %>% 
-        leaflet::addCircles(
-          lng = x$"longitude"[ i ],
-          lat = x$"latitude"[ i ],
-          stroke = TRUE,
-          color = "black",
-          opacity = 0.1,
-          fill = TRUE,
-          fillColor  = palette[ x$"year.month.day"[ i ] ], # palette[ x$"day.factor"[ i ] ],
-          fillOpacity = 1, # 0.5
-          ...
-        )
-      
-      if ( i > rows.to.plot[ 1 ] ) {
-        y <-  
-          y %>% 
+
+      if ( print.lines & i > rows.to.plot[ 1 ] ) {
+        
+        y <-
+          y %>%
           leaflet::addPolylines(
             lng = x$"longitude"[ ( i-1 ):i ],
             lat = x$"latitude"[ ( i-1 ):i ],
             stroke = TRUE,
-            color = palette[ x$"year.month.day"[ i ] ], # palette[ x$day.factor[ i ] ],
+            color = palette( x$"t"[ i ] ), # palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$day.factor[ i ] ],
             opacity = 0.5
           )
       }
-      
+
     }
     
     return( y )
