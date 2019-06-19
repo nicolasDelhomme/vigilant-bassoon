@@ -27,6 +27,7 @@ plot_stalkR_map <-
     print.lines = NULL,
     print.average = FALSE,
     print.individual = TRUE,
+    legend.position = "topright",
     ...
   ) {
     
@@ -177,7 +178,7 @@ plot_stalkR_map <-
         ...
       ) %>%
       leaflet::addLegend(
-        position = "bottomleft",
+        position = legend.position,
         pal = palette,
         values = ~ t.color,
         title = ifelse( test = is.hours, yes = "Hour", no = "Day" ),

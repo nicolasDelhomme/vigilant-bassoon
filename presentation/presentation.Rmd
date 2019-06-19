@@ -1,0 +1,112 @@
+---
+title: "stalkR"
+author: "Nicolas Delhomme & Tommi Suvitaival"
+date: "19/06/2019"
+output: ioslides_presentation
+---
+
+<style type="text/css">
+
+pre.lang-r{ /* Code block */
+  font-size: 14px;
+}
+
+</style>
+
+```{r setup, include=FALSE}
+# knitr::opts_chunk$set(echo = FALSE)
+
+# body{ /* Normal  */
+#    font-size: 16px;
+# }
+# pre {
+#   font-size: 42px
+# }
+```
+
+## Introduction
+
+stalkR:
+
+- Personal location data from Google
+- Visualization in R
+
+## Steps
+
+1. Request to download your location data from Google Takeout
+1. Download
+1. Unzip
+1. Use stalkReader() to re-format the data
+1. Run the Shiny App
+1. Stalk
+
+## Google: (1) Access your account 
+
+![](figures/Google-data-screenshot.png){ width=55% }
+
+## Google: (2) Select location data
+
+![](figures/Google-takeout-screenshot.png){ width=55% }
+
+## Google: (4): Download
+
+![](figures/Google-download-screenshot.png){ width=55% }
+
+## Reading JSON into R
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+# <div class="columns-2">
+
+file.path <-
+  "C:/Users/TSVV/Documents/takeout/Google/takeout2/extracted/Takeout/Location History/Location History.JSON"
+
+source( "../src/R/stalkReader.R" )
+source( "../src/R/global.R" )
+
+# print(getwd())
+
+# </div>
+
+```
+
+```{r, eval = FALSE, message = FALSE, warning = FALSE }
+
+x <- rjson::fromJSON( file = file.path )
+View( x )
+
+```
+
+![](figures/data_loaded-screenshot.png)
+
+## Converting JSON into a tibble
+
+```{r, cache = TRUE}
+
+x <- 
+  stalkReader( 
+    file = file.path,
+    time.start = as.POSIXct( x = "2019-06-09 23:00" ),
+    time.end = as.POSIXct( x = "2019-06-20 23:30" )
+  )
+
+str( x )
+
+```
+
+## Data Used by stalkR Shiny App
+
+```{r}
+
+x[ sample.int( n = nrow( x ), size = 10 ), 
+   c( "longitude", "latitude", "time.posix", "year.month.day", "hour" ) ]
+
+```
+
+## Creating a Map with plot_stalkR_map()
+
+```{r}
+plot_stalkR_map( x = x,
+                 time.start = as.POSIXct( x = "2019-06-13 00:01" ),
+                 time.end = as.POSIXct( x = "2019-06-13 23:59" ) )
+```
