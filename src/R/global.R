@@ -88,18 +88,6 @@ plot_stalkR_map <-
       
     }
     
-    if ( is.null( palette ) ) {
-      
-      palette <- grDevices::rainbow( n = nlevels( x$"t" ) )
-     
-    }
-    
-    palette <-
-      leaflet::colorFactor( 
-        palette = palette,
-        domain = levels( x$"t" ) 
-      )
-    
     x$"is.avg" <- FALSE
     
     if ( print.individual | print.average ) {
@@ -152,19 +140,25 @@ plot_stalkR_map <-
       x$"t.color"[ as.integer( x$"t" ) > as.integer( highlight.end ) ] <- NA
       
     }
-      
-    # for ( i in 1:nrow( x.grp ) ) {
-    #   
-    #   y <-
-    #     y%>%
-    #     leaflet::addCircleMarkers(
-    #       radius = 2, # ~ifelse(type == "ship", 6, 10),
-    #       color = "black", # palette( x.grp$t[ i ] ) #,
-    #       # stroke = FALSE, fillOpacity = 0.5
-    #     )
-    #   
-    # }
     
+    if ( !is.null( highlight.start ) | !is.null( highlight.end ) ) {
+      
+      x$"t.color" <- droplevels( x = x$"t.color" )
+      
+    }
+    
+    if ( is.null( palette ) ) {
+      
+      palette <- grDevices::rainbow( n = nlevels( x$"t.color" ) )
+      
+    }
+    
+    palette <-
+      leaflet::colorFactor( 
+        palette = palette,
+        domain = levels( x$"t.color" ) 
+      )
+ 
     y <- 
       leaflet::leaflet( data = x ) %>%
       leaflet::addTiles() %>% 
@@ -183,7 +177,7 @@ plot_stalkR_map <-
       leaflet::addLegend(
         position = "bottomleft",
         pal = palette,
-        values = ~ t,
+        values = ~ t.color,
         title = ifelse( test = is.hours, yes = "Hour", no = "Day" ),
         # labFormat = labelFormat( prefix = "$" ),
         opacity = 1
