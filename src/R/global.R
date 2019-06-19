@@ -21,6 +21,8 @@ plot_stalkR_map <-
     x,
     time.start = NULL,
     time.end = NULL,
+    highlight.start = NULL,
+    highlight.end = NULL,
     palette = NULL,
     print.lines = NULL,
     print.average = FALSE,
@@ -136,6 +138,20 @@ plot_stalkR_map <-
       x <- x[ NULL, ]
       
     }
+    
+    x$"t.color" <- x$"t"
+    
+    if ( !is.null( highlight.start ) ) {
+      
+      x$"t.color"[ as.integer( x$"t" ) < as.integer( highlight.start ) ] <- NA
+      
+    }
+    
+    if ( !is.null( highlight.end ) ) {
+      
+      x$"t.color"[ as.integer( x$"t" ) > as.integer( highlight.end ) ] <- NA
+      
+    }
       
     # for ( i in 1:nrow( x.grp ) ) {
     #   
@@ -159,7 +175,7 @@ plot_stalkR_map <-
         # color = "black",
         # opacity = 0.1,
         # fill = TRUE,
-        color = ~ palette( t ), # ~ colors, # palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$"day.factor"[ i ] ],
+        color = ~ palette( t.color ), # ~ colors, # palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$"day.factor"[ i ] ],
         fillOpacity = ~ ifelse( test = is.avg, yes = 0.5, no = 0.75 ),
         radius = ~ ifelse( test = is.avg, yes = 100, no = 10 ),  # 0.5
         ...
@@ -198,7 +214,7 @@ plot_stalkR_map <-
             lng = x$"longitude"[ ( i-1 ):i ],
             lat = x$"latitude"[ ( i-1 ):i ],
             stroke = TRUE,
-            color = palette( x$"t"[ i ] ), # palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$day.factor[ i ] ],
+            color = palette( x$"t.color"[ i ] ), # palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$day.factor[ i ] ],
             opacity = 0.5
           )
       }
