@@ -154,8 +154,13 @@ plot_stalkR_map <-
       
       palette <- grDevices::rainbow( n = nlevels( x$"t.color" ) )
       
-    }
+    } else {
     
+      if(length(palette) < nlevels( x$"t.color" )){
+        palette <- sample(palette,size =nlevels( x$"t.color" ),replace = TRUE)
+      }
+        
+    }    
     palette <-
       leaflet::colorFactor( 
         palette = palette,
@@ -231,8 +236,3 @@ files <- list.files(here::here("data"),full.names = TRUE)
 # load them in a named tible
 dat <- map(files,
     readRDS) %>% set_names(files %>% basename() %>% sub("_.*","",.))
-
-# Palettes ----
-cols <- RColorBrewer::brewer.pal(8,"Dark2")
-
-
