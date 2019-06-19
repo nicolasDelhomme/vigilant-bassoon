@@ -38,6 +38,7 @@ plot_stalkR_map <-
     #   
     # }
     # 
+
     if ( !is.null( time.start ) & !is.null( time.end ) ) {
       
       x.in <- x
