@@ -129,15 +129,17 @@ plot_stalkR_map <-
     
     x$"t.color" <- x$"t"
     
+    # stopp
+    
     if ( !is.null( highlight.start ) ) {
       
-      x$"t.color"[ as.integer( x$"t" ) < as.integer( highlight.start ) ] <- NA
+      x$"t.color"[ as.integer( as.character( x$"t" ) ) < as.integer( highlight.start ) ] <- NA
       
     }
     
     if ( !is.null( highlight.end ) ) {
       
-      x$"t.color"[ as.integer( x$"t" ) > as.integer( highlight.end ) ] <- NA
+      x$"t.color"[ as.integer( as.character( x$"t" ) ) > as.integer( highlight.end ) ] <- NA
       
     }
     
