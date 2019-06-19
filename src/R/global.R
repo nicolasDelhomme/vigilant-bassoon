@@ -1,3 +1,21 @@
+# Header ----
+#' ---
+#' title: "Stalking Tommi"
+#' author: "Nicolas Delhomme & Tommi Suvitaival"
+#' date: "`r Sys.Date()`"
+#' ---
+
+# Libraries ----
+suppressPackageStartupMessages(library(colourpicker))
+suppressPackageStartupMessages(library(grDevices))
+suppressPackageStartupMessages(library(here))
+suppressPackageStartupMessages(library(leaflet))
+suppressPackageStartupMessages(library(lubridate))
+suppressPackageStartupMessages(library(RColorBrewer))
+suppressPackageStartupMessages(library(shiny))
+suppressPackageStartupMessages(library(tidyverse))
+
+# Functions ----
 plot_stalkR_map <- 
   function(
     x,
@@ -6,10 +24,6 @@ plot_stalkR_map <-
     palette = NULL,
     ...
   ) {
-    
-    require( "dplyr" )
-    require( "grDevices" )
-    require( "leaflet" )
     
     if ( !is.null( time.start ) ) {
       
@@ -89,3 +103,11 @@ plot_stalkR_map <-
     return( y )
     
   }
+
+# Data ----
+# DATA ----
+message("Loading the data")
+
+dat <- readRDS(here::here("data","data_visby.rds"))
+
+cols <- RColorBrewer::brewer.pal(8,"Dark2")
