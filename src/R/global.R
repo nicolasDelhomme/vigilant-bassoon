@@ -22,6 +22,7 @@ plot_stalkR_map <-
     time.start = NULL,
     time.end = NULL,
     palette = NULL,
+    lines = FALSE,
     ...
   ) {
     
@@ -58,12 +59,21 @@ plot_stalkR_map <-
         )
       )
     
-    x$"year.month.day" <- as.factor( x = x$"year.month.day" )
+    if ( length( unique( x$"year.month.day" ) ) == 1 ) {
+      
+      x$"t" <- as.factor( x = x$"hour" )
+      
+    } else {
+    
+      x$"t" <- as.factor( x = x$"year.month.day" )
+    
+    }
     
     if ( is.null( palette ) ) {
       
       palette <- 
-        grDevices::rainbow( n = nlevels( x$"year.month.day" ) )
+        grDevices::rainbow( n = nlevels( x$"t" ) )
+        # grDevices::rainbow( n = nlevels( x$"year.month.day" ) )
         # grDevices::rainbow( n = nlevels( x$"day.factor" ) )
       
     }
@@ -84,19 +94,19 @@ plot_stalkR_map <-
           color = "black",
           opacity = 0.1,
           fill = TRUE,
-          fillColor  = palette[ x$"year.month.day"[ i ] ], # palette[ x$"day.factor"[ i ] ],
+          fillColor  = palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$"day.factor"[ i ] ],
           fillOpacity = 1, # 0.5
           ...
         )
       
-      if ( i > rows.to.plot[ 1 ] ) {
+      if ( print.lines & i > rows.to.plot[ 1 ] ) {
         y <-  
           y %>% 
           leaflet::addPolylines(
             lng = x$"longitude"[ ( i-1 ):i ],
             lat = x$"latitude"[ ( i-1 ):i ],
             stroke = TRUE,
-            color = palette[ x$"year.month.day"[ i ] ], # palette[ x$day.factor[ i ] ],
+            color = palette[ x$"t"[ i ] ], # palette[ x$"year.month.day"[ i ] ], # palette[ x$day.factor[ i ] ],
             opacity = 0.5
           )
       }
