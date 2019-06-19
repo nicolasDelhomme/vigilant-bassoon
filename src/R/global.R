@@ -26,19 +26,20 @@ plot_stalkR_map <-
     ...
   ) {
     
-    if ( !is.null( time.start ) ) {
-      
-      # stopifnot( is.time( time.start ) )
-      stopifnot( !is.null( time.end ) )
-      
-    }
-    
-    if ( !is.null( time.end ) ) {
-      
-      # stopifnot( is.time( time.end ) )
-      
-    }
-    
+    # if ( !is.null( time.start ) ) {
+    #   
+    #   stopifnot( is.time( time.start ) )
+    #   stopifnot( !is.null( time.end ) )
+    #   
+    # }
+    # 
+    # if ( !is.null( time.end ) ) {
+    #   
+    #   stopifnot( is.time( time.end ) )
+    #   
+    # }
+    # 
+
     if ( !is.null( time.start ) & !is.null( time.end ) ) {
       
       x.in <- x
