@@ -210,9 +210,16 @@ plot_stalkR_map <-
   }
 
 # Data ----
-# DATA ----
 message("Loading the data")
 
-dat <- readRDS(here::here("data","data_visby.rds"))
+# Find the files
+files <- list.files(here::here("data"),full.names = TRUE)
 
+# load them in a named tible
+dat <- map(files,
+    readRDS) %>% set_names(files %>% basename() %>% sub("_.*","",.))
+
+# Palettes ----
 cols <- RColorBrewer::brewer.pal(8,"Dark2")
+
+
