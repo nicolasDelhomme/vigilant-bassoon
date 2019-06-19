@@ -36,15 +36,12 @@ ui <- fluidPage(
         ),
         column(6,style=list("padding-left: 5px;"),
                dateInput("date_end","To",
-                         value=format(today(),"%Y-%m-%d"))
-        )),
-      
-      # action button
-      fluidRow(
-        column(6,offset=3,style=list("padding-left: 5px;"),
-               actionButton("date_action","Update")
-        )
+                         value=format(today(),"%Y-%m-%d")))
       ),
+      fluidRow(
+        column(4,style=list("padding-right: 5px;"),
+               actionButton("date_action","Update"))
+        ),
       
       # ruler
       hr(),
@@ -52,23 +49,26 @@ ui <- fluidPage(
       # palette
       fluidRow(
         column(12,style=list("padding-right: 5px;"),
-               colourpicker::colourInput("colour",label="Color",
-                                         showColour ="background",
-                                         palette="limited",
-                                         allowedCols=cols,
-                                         value=cols[1],
-                                         allowTransparent = TRUE)
-        )
-        # lines
+               selectInput("plt","Palette",c("None","Dark2","Set3"),
+                          selected="None"))
       ),
+      # average
+      fluidRow(
+        column(12,style=list("padding-right: 5px;"),
+               radioButtons("avg","Average",c("on","off"),selected="off",
+                                              inline=TRUE))),
+      # lines
+      tags$div(id="lines"),
       tags$br()
     ),
     
     # Show a plot of the generated distribution
     mainPanel(
-      textOutput("textOutput"),
-      leafletOutput("plot_output",width="400px")
-    )
+      tabsetPanel(type = "tabs",
+                  tabPanel("Plot",leafletOutput("plot_output",width="100%")),
+                  tabPanel("Table",dataTableOutput("table")),
+                  tabPanel("Version",dataTableOutput("version"))
+                  ))
     
   ),
   uiOutput("ui")
@@ -78,33 +78,128 @@ ui <- fluidPage(
 #message("Setting the Server")
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-  ## TODO ADD VALIDATION
   
+  # vars
+  lineUI <- FALSE
+  lines <- TRUE
+  
+  # dataset
   dset <- reactive({
+    validate(need(input$other=="","You cannot stalk others yet!"))
     switch(input$whom,
            "Tommy" = dat$tommy,
            "Nico" = dat$nico)
   })
   
+  # calendar
   dts <- reactive({
+    
     shiny::req(input$date_start)
     shiny::req(input$date_end)
-    c(start=as_datetime(input$date_start),
-      end=as_datetime(input$date_end))
+    
+    validate(need(input$date_start <= input$date_end,
+                  "The 'To' date cannot be older than the 'From' date"))
+    
+    min.date <- min(as_datetime(dset()$year.month.day))
+    max.date <- max(as_datetime(dset()$year.month.day))
+    
+    validate(need(input$date_start <= max.date,
+                  sprintf("There is no data past %s",max.date)))
+    
+    validate(need(input$date_end >= min.date,
+                  sprintf("There is no data prior %s",min.date)))
+    
+    sdate <- input$date_start
+    edate <- input$date_end
+
+    if(sdate == edate){
+      edate <- as_datetime(edate) + days(1) -minutes(1)
+    }
+    
+    tibble(
+      start=sdate,
+      end=edate)
   })
   
+  # update based on cal
+  observeEvent(input$date_action,{
+    #message("update1",lineUI,lines)
+    if(!isolate(dts()$start) %--% isolate(dts()$end) %>% int_length() <= days(1)){
+      if(!lineUI){
+        insertUI("#lines",
+                 ui = 
+                   fluidRow(
+                     column(6,offset=1,
+                            radioButtons("radiolines",
+                                         "Lines",
+                                         c("on","off"),
+                                         selected="off",
+                                         inline=TRUE))))
+        lineUI <<- TRUE
+        lines <<- FALSE
+        #message("update2p",lineUI,lines)
+      }
+    } else {
+      if(lineUI){
+        removeUI("#lines")
+        lineUI <<- FALSE
+        lines <<- TRUE
+        #message("update2m",lineUI,lines)
+      }
+    }
+    message("update3",lineUI,lines)
+    })
   
-  output$textOutput <- renderText({
-    sprintf("We stalked from %s to %s (%s seconds)",
-            dts()[["start"]],dts()[["end"]],
-            dts()[["start"]] %--% dts()[["end"]]  %>% int_length())
-  })
+  # some text - used for debug
+  # output$textOutput <- renderText({
+  #   input$date_action
+  #   sprintf("We stalked from %s to %s (%s seconds), %s,%s",
+  #           isolate(dts()$start),
+  #           isolate(dts()$end),
+  #           isolate(dts()$start) %--% isolate(dts()$end)  %>% int_length(),
+  #           lineUI,lines)
+  # })
+
+  # plot
   output$plot_output <- renderLeaflet({
+    
     input$date_action
-    plot_stalkR_map(dset(),
-                    isolate(dts()[["start"]]),
-                    isolate(dts()[["end"]]))
+    llines <- lines
+    if(!is.null(input$radiolines)){
+      llines <- switch(input$radiolines,
+                          "on"=TRUE,
+                          "off"=FALSE)
+      if(!lineUI){
+        llines <- lines
+        }
+      }
+    
+    message("plot",lineUI,lines,llines)
+    
+    message("plot ",isolate(dts()$start),
+            isolate(dts()$end))
+    
+    pal <- switch(input$plt,
+                  "None"=NULL,
+                  "Dark2"=brewer.pal(8,"Dark2"),
+                  "Set3"=brewer.pal(12,"Set3"))
+    
+      plot_stalkR_map(dset(),
+                      isolate(dts()$start),
+                      isolate(dts()$end),
+                      print.lines=llines,
+                      palette=pal,
+                      print.average = switch(input$avg,
+                                             "on"=TRUE,
+                                             "off"=FALSE))
   })
+  
+  output$table <- renderDataTable({dset() %>% 
+        filter(as_date(year.month.day) >= dts()$start &
+                 as_date(year.month.day) <= dts()$end)})
+
+  output$version <- renderDataTable({R.version %>% unlist %>% enframe})
+   
 }
 
 # RUN ----
