@@ -22,7 +22,7 @@ plot_stalkR_map <-
     time.start = NULL,
     time.end = NULL,
     palette = NULL,
-    lines = FALSE,
+    print.lines = FALSE,
     ...
   ) {
     
