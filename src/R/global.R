@@ -90,13 +90,14 @@ plot_stalkR_map <-
         grDevices::rainbow( n = nlevels( x$"t" ) )
         # grDevices::rainbow( n = nlevels( x$"year.month.day" ) )
         # grDevices::rainbow( n = nlevels( x$"day.factor" ) )
-      
-      palette <-
-        leaflet::colorFactor( 
-          palette = palette,
-          domain = levels( x$"t" ) )
-      
+     
     }
+    
+    palette <-
+      leaflet::colorFactor( 
+        palette = palette,
+        domain = levels( x$"t" ) 
+      )
     
     # x$"colors" <- palette[ x$"t" ]
     
