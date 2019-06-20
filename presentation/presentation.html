@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>stalkR</title>
+  <title>Following Location with stalkR</title>
 
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="chrome=1">
@@ -19,7 +19,7 @@
     var SLIDE_CONFIG = {
       // Slide settings
       settings: {
-                title: 'stalkR',
+                title: 'Following Location with stalkR',
                         useBuilds: true,
         usePrettify: true,
         enableSlideAreas: true,
@@ -7020,8 +7020,17 @@ pre.lang-r{ /* Code block */
 <li>Unzip</li>
 <li>Use stalkReader() to re-format the data</li>
 <li>Run the Shiny App</li>
-<li>Stalk</li>
+<li>Follow</li>
 </ol>
+
+</article></slide><slide class=""><hgroup><h2>Key Tools</h2></hgroup><article  id="key-tools">
+
+<ul>
+<li>Google account</li>
+<li>R + RStudio</li>
+<li>Packages: rJSON, tidyverse, lubridate, shiny, leaflet</li>
+<li>Git</li>
+</ul>
 
 </article></slide><slide class=""><hgroup><h2>Google: (1) Access your account</h2></hgroup><article  id="google-1-access-your-account">
 
@@ -7073,7 +7082,7 @@ str( x )</pre>
 ##  $ weekday       : chr  &quot;Sun&quot; &quot;Sun&quot; &quot;Sun&quot; &quot;Sun&quot; ...
 ##  $ hour          : chr  &quot;23&quot; &quot;23&quot; &quot;23&quot; &quot;23&quot; ...</pre>
 
-</article></slide><slide class=""><hgroup><h2>Data Used by stalkR Shiny App</h2></hgroup><article  id="data-used-by-stalkr-shiny-app">
+</article></slide><slide class=""><hgroup><h2>Data Used by the Shiny App</h2></hgroup><article  id="data-used-by-the-shiny-app">
 
 <pre class = 'prettyprint lang-r'>x[ sample.int( n = nrow( x ), size = 10 ), 
    c( &quot;longitude&quot;, &quot;latitude&quot;, &quot;time.posix&quot;, &quot;year.month.day&quot;, &quot;hour&quot; ) ]</pre>
@@ -7092,7 +7101,7 @@ str( x )</pre>
 ##  9      18.3     57.6 2019-06-17 06:32:22 19-Jun-17      08   
 ## 10      18.3     57.6 2019-06-17 11:13:48 19-Jun-17      13</pre>
 
-</article></slide><slide class=""><hgroup><h2>Creating a Map with plot_stalkR_map()</h2></hgroup><article  id="creating-a-map-with-plot_stalkr_map">
+</article></slide><slide class=""><hgroup><h2>Creating a Map</h2></hgroup><article  id="creating-a-map">
 
 <pre class = 'prettyprint lang-r'>plot_stalkR_map( x = x,
                  time.start = as.POSIXct( x = &quot;2019-06-13 00:01&quot; ),
