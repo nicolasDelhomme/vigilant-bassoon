@@ -26,8 +26,6 @@ pre.lang-r{ /* Code block */
 
 ## Introduction
 
-stalkR:
-
 - Personal location data from Google
 - Visualization in R
 
@@ -37,7 +35,7 @@ stalkR:
 1. Download
 1. Unzip
 1. Use stalkReader() to re-format the data
-1. Run the Shiny App
+1. Run the Shiny App to use plot_stalkR_map
 1. Follow
 
 ## Key Tools
@@ -45,7 +43,7 @@ stalkR:
 - Google account
 - R + RStudio
 - Packages: rJSON, tidyverse, lubridate, shiny, leaflet
-- Git
+- Git (https://github.com/nicolasDelhomme/vigilant-bassoon)
 
 ## Google: (1) Access your account 
 
